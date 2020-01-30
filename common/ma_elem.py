@@ -1,4 +1,6 @@
-class MAElem:
+import logging
+
+class MAElem2:
     def __init__(self):
         self._ma5 = None
         self._ma10 = None
@@ -99,6 +101,51 @@ class MAElem:
             return False
 
     def Print(self):
-        print("MAElem: 5:{0}, 10:{1}, 15:{2}, 20:{3}, 25:{4}, 30:{5}, 50:{6}, 60:{7}, 90:{8}, 120:{9}, 150:{10}, 180:{11}".
-              format(self._ma5, self._ma10, self._ma15, self._ma20, self._ma25, self._ma30, self._ma50,
-                     self._ma60, self._ma90, self._ma120, self._ma150, self._ma180))
+        print(
+            "MAElem: 5:{0}, 10:{1}, 15:{2}, 20:{3}, 25:{4}, 30:{5}, 50:{6}, 60:{7}, 90:{8}, 120:{9}, 150:{10}, 180:{11}".
+            format(self._ma5, self._ma10, self._ma15, self._ma20, self._ma25, self._ma30, self._ma50,
+                   self._ma60, self._ma90, self._ma120, self._ma150, self._ma180))
+
+
+class MAElem:
+    _MA_ELEM_MAX = 180
+
+    def __init__(self):
+        self._ma_list = [-1] * MAElem._MA_ELEM_MAX
+
+    def GetMAList(self):
+        return self._ma_list
+
+    def SetMA(self, period, ma):
+        if not MAElem.ValidPeiod(period):
+            print("SetMA： Invalid input: period={0}, ma={1}".format(period, ma))
+            assert False
+        self._ma_list[period - 1] = ma
+
+    def GetMA(self, period):
+        if not MAElem.ValidPeiod(period):
+            print("GetMA： Invalid input: period={0}".format(period))
+            assert False
+        return self._ma_list[period - 1]
+
+    def Equal(self, ma_elem_other):
+        if self._ma_list == ma_elem_other.GetMAList():
+            return True
+        else:
+            return False
+
+    @staticmethod
+    def ValidPeiod(period):
+        if period > 0 and period <= MAElem._MA_ELEM_MAX:
+            return True
+        else:
+            return False
+
+    def Print(self):
+        logging.debug("MAElem: ")
+        index = 0
+        for ma in self._ma_list:
+            if ma != -1:
+                logging.debug("{0}:{1} ".format(index + 1, ma))
+            index += 1
+        logging.debug("")

@@ -82,7 +82,7 @@ class KLineDataParser:
         for i in jsl["data"]:
             kline_elem = KLineElem()
             kline_elem._amount = i["amount"]
-            kline_elem._ts = i["id"] #KLineDataParser.ConvertTimeStamp(i["id"])
+            kline_elem._ts = i["id"]
             kline_elem._ts_str = KLineDataParser.ConvertTimeStamp(i["id"])
             kline_elem._open = i["open"]
             kline_elem._close = i["close"]

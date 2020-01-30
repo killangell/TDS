@@ -1,4 +1,5 @@
 import time
+import logging
 from common.ma_elem import MAElem
 
 
@@ -37,8 +38,8 @@ class KLineElem:
             return ts
 
     def Print(self):
-        print(self.ParseTS(self._ts))
-        print("KLineElem: amount:{0}, ts:{1}, open:{2}, close:{3}, high:{4}, low:{5}, vol:{6}".format(self._amount,
+        logging.debug(self.ParseTS(self._ts))
+        logging.debug("KLineElem: amount:{0}, ts:{1}, open:{2}, close:{3}, high:{4}, low:{5}, vol:{6}".format(self._amount,
                                                                                                       self.ParseTS(self._ts),
                                                                                                       self._open,
                                                                                                       self._close,

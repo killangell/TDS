@@ -5,18 +5,18 @@ from common.ma_elem import MAElem
 class TestMAElem:
     @staticmethod
     def Init(ma_elem=MAElem()):
-        ma_elem._ma5 = 1
-        ma_elem._ma10 = 1
-        ma_elem._ma15 = 1
-        ma_elem._ma20 = 1
-        ma_elem._ma25 = 1
-        ma_elem._ma30 = 1
-        ma_elem._ma50 = 1
-        ma_elem._ma60 = 1
-        ma_elem._ma90 = 1
-        ma_elem._ma120 = 1
-        ma_elem._ma150 = 1
-        ma_elem._ma180 = 1
+        ma_elem.SetMA(5, 1)
+        ma_elem.SetMA(10, 1)
+        ma_elem.SetMA(15, 1)
+        ma_elem.SetMA(20, 1)
+        ma_elem.SetMA(25, 1)
+        ma_elem.SetMA(30, 1)
+        ma_elem.SetMA(50, 1)
+        ma_elem.SetMA(60, 1)
+        ma_elem.SetMA(90, 1)
+        ma_elem.SetMA(120, 1)
+        ma_elem.SetMA(150, 1)
+        ma_elem.SetMA(180, 1)
 
     @staticmethod
     def TestEqual():
@@ -28,51 +28,51 @@ class TestMAElem:
         assert (input_a.Equal(input_b))
 
         TestMAElem.Init(input_b)
-        input_b._ma5 = 2
+        input_b.SetMA(5, 2)
         assert (not input_a.Equal(input_b))
 
         TestMAElem.Init(input_b)
-        input_b._ma10 = 2
+        input_b.SetMA(10, 2)
         assert (not input_a.Equal(input_b))
 
         TestMAElem.Init(input_b)
-        input_b._ma15 = 2
+        input_b.SetMA(15, 2)
         assert (not input_a.Equal(input_b))
 
         TestMAElem.Init(input_b)
-        input_b._ma20 = 2
+        input_b.SetMA(20, 2)
         assert (not input_a.Equal(input_b))
 
         TestMAElem.Init(input_b)
-        input_b._ma25 = 2
+        input_b.SetMA(25, 2)
         assert (not input_a.Equal(input_b))
 
         TestMAElem.Init(input_b)
-        input_b._ma30 = 2
+        input_b.SetMA(30, 2)
         assert (not input_a.Equal(input_b))
 
         TestMAElem.Init(input_b)
-        input_b._ma50 = 2
+        input_b.SetMA(50, 2)
         assert (not input_a.Equal(input_b))
 
         TestMAElem.Init(input_b)
-        input_b._ma60 = 2
+        input_b.SetMA(60, 2)
         assert (not input_a.Equal(input_b))
 
         TestMAElem.Init(input_b)
-        input_b._ma90 = 2
+        input_b.SetMA(90, 2)
         assert (not input_a.Equal(input_b))
 
         TestMAElem.Init(input_b)
-        input_b._ma120 = 2
+        input_b.SetMA(120, 2)
         assert (not input_a.Equal(input_b))
 
         TestMAElem.Init(input_b)
-        input_b._ma150 = 2
+        input_b.SetMA(150, 2)
         assert (not input_a.Equal(input_b))
 
         TestMAElem.Init(input_b)
-        input_b._ma180 = 2
+        input_b.SetMA(180, 2)
         assert (not input_a.Equal(input_b))
 
         print("TestEqual pass")
@@ -125,10 +125,10 @@ class TestMAElem:
 
     @staticmethod
     def TestValidPeriod():
-        assert not MAElem.ValidPeiod(1)
-        assert not MAElem.ValidPeiod(2)
-        assert not MAElem.ValidPeiod(3)
-        assert not MAElem.ValidPeiod(4)
+        assert MAElem.ValidPeiod(1)
+        assert MAElem.ValidPeiod(2)
+        assert MAElem.ValidPeiod(3)
+        assert MAElem.ValidPeiod(4)
         assert MAElem.ValidPeiod(5)
         assert MAElem.ValidPeiod(10)
         assert MAElem.ValidPeiod(15)

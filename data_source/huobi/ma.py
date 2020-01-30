@@ -1,4 +1,5 @@
 import sys
+import logging
 from data_source.huobi.kline import *
 from common.kline_elem import KLineElem
 
@@ -58,6 +59,17 @@ class MAEx:
         if ma_quick == ma_slow:
             return 1
         elif abs(ma_quick - ma_slow) >= 20:
+            if ma_quick > ma_slow:
+                return 2
+            else:
+                return 3
+        else:
+            return 0
+
+    def GetStateEx(self, ma_quick, ma_slow, threshold):
+        if ma_quick == ma_slow:
+            return 1
+        elif abs(ma_quick - ma_slow) >= threshold:
             if ma_quick > ma_slow:
                 return 2
             else:
@@ -146,10 +158,10 @@ class MAEx:
                         if state_current == 2:
                            assert not strategy_long_old or strategy_long_old == False
                            if strategy_long_old == False:
-                                print("profit: short old")
-                                kline_elem_old.Print()
-                                print("profit: short current")
-                                kline_elem_current.Print()
+                                # print("profit: short old")
+                                # kline_elem_old.Print()
+                                # print("profit: short current")
+                                # kline_elem_current.Print()
                                 profit_current = kline_elem_old._close - kline_elem_current._close
                                 print("profit: short: {0} - {1} = {2}".format(kline_elem_old._close,
                                                                       kline_elem_current._close,
@@ -161,10 +173,10 @@ class MAEx:
                         elif state_current == 3:
                            assert not strategy_long_old or strategy_long_old == True
                            if strategy_long_old == True:
-                                print("profit: long current")
-                                kline_elem_current.Print()
-                                print("profit: long old")
-                                kline_elem_old.Print()
+                                # print("profit: long current")
+                                # kline_elem_current.Print()
+                                # print("profit: long old")
+                                # kline_elem_old.Print()
                                 profit_current = kline_elem_current._close - kline_elem_old._close
                                 print("profit: long: {0} - {1} = {2}".format(kline_elem_current._close,
                                                                   kline_elem_old._close,
@@ -260,10 +272,10 @@ class MAEx:
                         if state_current == 2:
                            assert not strategy_long_old or strategy_long_old == False
                            if strategy_long_old == False:
-                                print("profit: short old")
-                                kline_elem_old.Print()
-                                print("profit: short current")
-                                kline_elem_current.Print()
+                                # print("profit: short old")
+                                # kline_elem_old.Print()
+                                # print("profit: short current")
+                                # kline_elem_current.Print()
                                 profit_current = kline_elem_old._close - kline_elem_current._close
                                 print("profit: short: {0} - {1} = {2}".format(kline_elem_old._close,
                                                                       kline_elem_current._close,
@@ -275,10 +287,10 @@ class MAEx:
                         elif state_current == 3:
                            assert not strategy_long_old or strategy_long_old == True
                            if strategy_long_old == True:
-                                print("profit: long current")
-                                kline_elem_current.Print()
-                                print("profit: long old")
-                                kline_elem_old.Print()
+                                # print("profit: long current")
+                                # kline_elem_current.Print()
+                                # print("profit: long old")
+                                # kline_elem_old.Print()
                                 profit_current = kline_elem_current._close - kline_elem_old._close
                                 print("profit: long: {0} - {1} = {2}".format(kline_elem_current._close,
                                                                   kline_elem_old._close,
@@ -293,6 +305,122 @@ class MAEx:
                     strategy_long_old = strategy_long_current
         return (period_quick, period_slow, strategy_counter, profit_sum)
 
+    def PrintEqualMAEx(self, period_quick, period_slow, threshold):
+        '''
+        state_machine = 1, ma_quick == ma_slow
+        state_machine = 2, ma_quick > ma_slow
+        state_machine = 3, ma_quick < ma_slow
+        1 -> 2, long
+        1 -> 3, short
+        2 -> 3, short
+        3 -> 2, long
+        '''
+        logging.debug("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+        logging.debug("period_quick={0}, period_slow={1}, threshold={2}".format(period_quick, period_slow, threshold))
+        profit_sum = 0
+        profit_current = 0
+        kline_elem_old = None
+        kline_elem_current = None
+        strategy_need_change = False
+        strategy_long_old = None
+        strategy_long_current = None
+        strategy_counter = 0
+        state_init = 0
+        index = 0
+        for i in self._kline_elem_list:
+            ma_quick = i._ma_elem.GetMA(period_quick)
+            ma_slow = i._ma_elem.GetMA(period_slow)
+            if ma_quick != -1 and ma_slow != -1:
+                state_init = self.GetStateEx(ma_quick, ma_slow, threshold)
+                if state_init != 0:
+                    break
+            index += 1
+        for i in self._kline_elem_list[index+1::1]:
+            ma_quick= i._ma_elem.GetMA(period_quick)
+            ma_slow = i._ma_elem.GetMA(period_slow)
+            # if ma_quick != -1 and ma_slow != -1:
+            state_current = self.GetStateEx(ma_quick, ma_slow, threshold)
+            if state_current == 0:
+                continue
+            if state_init != state_current:
+                strategy_need_change = False
+                if state_init == 1 and state_current == 2:
+                    state_init = state_current
+                    strategy_need_change = True
+                    strategy_long_current = True
+                    strategy_counter += 1
+                    # logging.debug("long +++++++++++++++++:")
+                    # i.Print()
+                    # logging.debug("long *****************")
+                elif state_init == 1 and state_current == 3:
+                    state_init = state_current
+                    strategy_need_change = True
+                    strategy_long_current = False
+                    strategy_counter += 1
+                    # logging.debug("short -----------------")
+                    # i.Print()
+                    # logging.debug("short *****************")
+                elif state_init == 2 and state_current == 3:
+                    state_init = state_current
+                    strategy_need_change = True
+                    strategy_long_current = False
+                    strategy_counter += 1
+                    # logging.debug("short -----------------")
+                    # i.Print()
+                    # logging.debug("short *****************")
+                elif state_init == 3 and state_current == 2:
+                    state_init = state_current
+                    strategy_need_change = True
+                    strategy_long_current = True
+                    strategy_counter += 1
+                    # logging.debug("long +++++++++++++++++:")
+                    # i.Print()
+                    # logging.debug("long *****************")
+                else:
+                    strategy_need_change = False
+                    logging.debug("not defined: state_init={0}, state_current={1}".format(state_init, state_current))
+
+                if strategy_need_change:
+                    kline_elem_current = i
+                    if kline_elem_old:
+                        if state_current == 2:
+                           assert not strategy_long_old or strategy_long_old == False
+                           if strategy_long_old == False:
+                                # print("profit: short old")
+                                # kline_elem_old.Print()
+                                # print("profit: short current")
+                                # kline_elem_current.Print()
+                                profit_current = kline_elem_old._close - kline_elem_current._close
+                                logging.debug("profit: short: {0} - {1} = {2}".format(kline_elem_old._close,
+                                                                      kline_elem_current._close,
+                                                                      profit_current))
+                                profit_sum += profit_current
+                                logging.debug("profit_sum = {0}, profit_current={1}".format(profit_sum, profit_current))
+                                logging.debug("")
+                                logging.debug("")
+                        elif state_current == 3:
+                           assert not strategy_long_old or strategy_long_old == True
+                           if strategy_long_old == True:
+                                # print("profit: long current")
+                                # kline_elem_current.Print()
+                                # print("profit: long old")
+                                # kline_elem_old.Print()
+                                profit_current = kline_elem_current._close - kline_elem_old._close
+                                logging.debug("profit: long: {0} - {1} = {2}".format(kline_elem_current._close,
+                                                                  kline_elem_old._close,
+                                                                  profit_current))
+                                profit_sum += profit_current
+                                logging.debug("profit_sum = {0}, profit_current={1}".format(profit_sum, profit_current))
+                                logging.debug("")
+                                logging.debug("")
+                        else:
+                           logging.debug("not defined 2")
+                    kline_elem_old = kline_elem_current
+                    strategy_long_old = strategy_long_current
+        if strategy_counter >= 1:
+            return (period_quick, period_slow, strategy_counter, threshold, profit_sum)
+        else:
+            return None
 
 class MA:
     def __init__(self):
