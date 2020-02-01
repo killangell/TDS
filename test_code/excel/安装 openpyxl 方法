@@ -1,0 +1,8 @@
+
+https://jingyan.baidu.com/article/6f2f55a1ef0b87f4b83e6c3a.html
+
+第一种方式：自动安装。
+
+点击windows键+R键，弹出cmd框。
+
+cmd框中输入pip install openpyxl，回车。

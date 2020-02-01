@@ -237,7 +237,7 @@ class MAEx:
                     strategy_counter += 1
                     print("long +++++++++++++++++:")
                     i.Print()
-                    print("long *****************")
+                    # print("long *****************")
                 elif state_init == 1 and state_current == 3:
                     state_init = state_current
                     strategy_need_change = True
@@ -245,7 +245,7 @@ class MAEx:
                     strategy_counter += 1
                     print("short -----------------")
                     i.Print()
-                    print("short *****************")
+                    # print("short *****************")
                 elif state_init == 2 and state_current == 3:
                     state_init = state_current
                     strategy_need_change = True
@@ -253,7 +253,7 @@ class MAEx:
                     strategy_counter += 1
                     print("short -----------------")
                     i.Print()
-                    print("short *****************")
+                    # print("short *****************")
                 elif state_init == 3 and state_current == 2:
                     state_init = state_current
                     strategy_need_change = True
@@ -261,7 +261,7 @@ class MAEx:
                     strategy_counter += 1
                     print("long +++++++++++++++++:")
                     i.Print()
-                    print("long *****************")
+                    # print("long *****************")
                 else:
                     strategy_need_change = False
                     print("not defined: state_init={0}, state_current={1}".format(state_init, state_current))
@@ -305,7 +305,7 @@ class MAEx:
                     strategy_long_old = strategy_long_current
         return (period_quick, period_slow, strategy_counter, profit_sum)
 
-    def PrintEqualMAEx(self, period_quick, period_slow, threshold):
+    def PrintEqualMAEx(self, period_quick, period_slow, threshold, verbose=False):
         '''
         state_machine = 1, ma_quick == ma_slow
         state_machine = 2, ma_quick > ma_slow
@@ -318,6 +318,8 @@ class MAEx:
         logging.debug("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
         logging.debug("period_quick={0}, period_slow={1}, threshold={2}".format(period_quick, period_slow, threshold))
         profit_sum = 0
+        positive_num = 0
+        negative_num = 0
         profit_current = 0
         kline_elem_old = None
         kline_elem_current = None
@@ -349,33 +351,37 @@ class MAEx:
                     strategy_need_change = True
                     strategy_long_current = True
                     strategy_counter += 1
-                    # logging.debug("long +++++++++++++++++:")
-                    # i.Print()
-                    # logging.debug("long *****************")
+                    if verbose:
+                        logging.debug("long +++++++++++++++++:")
+                        i.Print()
+                        # logging.debug("long *****************")
                 elif state_init == 1 and state_current == 3:
                     state_init = state_current
                     strategy_need_change = True
                     strategy_long_current = False
                     strategy_counter += 1
-                    # logging.debug("short -----------------")
-                    # i.Print()
-                    # logging.debug("short *****************")
+                    if verbose:
+                        logging.debug("short -----------------")
+                        i.Print()
+                        # logging.debug("short *****************")
                 elif state_init == 2 and state_current == 3:
                     state_init = state_current
                     strategy_need_change = True
                     strategy_long_current = False
                     strategy_counter += 1
-                    # logging.debug("short -----------------")
-                    # i.Print()
-                    # logging.debug("short *****************")
+                    if verbose:
+                        logging.debug("short -----------------")
+                        i.Print()
+                        # logging.debug("short *****************")
                 elif state_init == 3 and state_current == 2:
                     state_init = state_current
                     strategy_need_change = True
                     strategy_long_current = True
                     strategy_counter += 1
-                    # logging.debug("long +++++++++++++++++:")
-                    # i.Print()
-                    # logging.debug("long *****************")
+                    if verbose:
+                        logging.debug("long +++++++++++++++++:")
+                        i.Print()
+                        # logging.debug("long *****************")
                 else:
                     strategy_need_change = False
                     logging.debug("not defined: state_init={0}, state_current={1}".format(state_init, state_current))
@@ -391,6 +397,10 @@ class MAEx:
                                 # print("profit: short current")
                                 # kline_elem_current.Print()
                                 profit_current = kline_elem_old._close - kline_elem_current._close
+                                if profit_current > 0:
+                                    positive_num += 1
+                                elif profit_current < 0:
+                                    negative_num += 1
                                 logging.debug("profit: short: {0} - {1} = {2}".format(kline_elem_old._close,
                                                                       kline_elem_current._close,
                                                                       profit_current))
@@ -406,6 +416,10 @@ class MAEx:
                                 # print("profit: long old")
                                 # kline_elem_old.Print()
                                 profit_current = kline_elem_current._close - kline_elem_old._close
+                                if profit_current > 0:
+                                    positive_num += 1
+                                elif profit_current < 0:
+                                    negative_num += 1
                                 logging.debug("profit: long: {0} - {1} = {2}".format(kline_elem_current._close,
                                                                   kline_elem_old._close,
                                                                   profit_current))
@@ -418,7 +432,8 @@ class MAEx:
                     kline_elem_old = kline_elem_current
                     strategy_long_old = strategy_long_current
         if strategy_counter >= 1:
-            return (period_quick, period_slow, strategy_counter, threshold, profit_sum)
+            return (period_quick, period_slow, strategy_counter, threshold, profit_sum,
+                    positive_num, negative_num, positive_num > negative_num)
         else:
             return None
 
