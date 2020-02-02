@@ -3,8 +3,14 @@ import operator
 
 from data_source.huobi.kline import KLineDataParser
 from data_source.huobi.ma import MAEx
-from tds_test_huobi_kline_data import TestHuobiKline15MinData
-from huobi_4hour_data_source import Huobi4HourData
+from data_source.huobi.static_data_source.huobi_1week_data_source import Huobi1WeekData
+from data_source.huobi.static_data_source.huobi_1day_data_source import Huobi1dayData
+from data_source.huobi.static_data_source.huobi_4hour_data_source import Huobi4HourData
+from data_source.huobi.static_data_source.huobi_1hour_data_source import Huobi1HourData
+from data_source.huobi.static_data_source.huobi_30min_data_source import Huobi30minData
+from data_source.huobi.static_data_source.huobi_15min_data_source import Huobi15minData
+from data_source.huobi.static_data_source.huobi_5min_data_source import Huobi5minData
+from data_source.huobi.static_data_source.huobi_1min_data_source import Huobi1minData
 
 # UnitTestMain.TestAll()
 
@@ -88,19 +94,27 @@ if test_all:
     range_threshold_end = 201
     log_verbose = False
 else:
-    data_source_list = [
-        Huobi4HourData.GetTestData_4hour_500,
-        Huobi4HourData.GetTestData_4hour_1000,
-        Huobi4HourData.GetTestData_4hour_1500,
-        Huobi4HourData.GetTestData_4hour_2000,
-                        ]
+    test_one_only = True
+    if test_one_only:
+        data_source_list = [
+            Huobi1WeekData.GetTestData_1week_500,
+                            ]
+    else:
+        data_source_list = [
+            # Huobi1dayData.GetTestData_1day_500,
+            Huobi1WeekData.GetTestData_1week_500,
+            # Huobi30minData.GetTestData_30min_500,
+            # Huobi30minData.GetTestData_30min_1000,
+            # Huobi30minData.GetTestData_30min_1500,
+            # Huobi30minData.GetTestData_30min_2000,
+                            ]
     # range_quick_start = 2
     RANGE_QUICK_INIT = 2
     range_quick_end = 61
     # range_slow_start = range_quick_start + 1
     range_slow_end = 91
     range_threshold_start = 0
-    range_threshold_end = 201
+    range_threshold_end = 101
     log_verbose = False
 
 data_source_index = 0
@@ -123,19 +137,25 @@ for data_source in data_source_list:
 
     kline_elem_list.PreparePrintEqualMA()
 
-    range_quick_start = RANGE_QUICK_INIT
-    for ma_qk in range(range_quick_start, range_quick_end):
-        logging.debug("{0}, ma_qk={1} start".format(GetCurrentTimeStampStr(), ma_qk))
-        for ma_sl in range(range_quick_start + 1, range_slow_end):
-            if ma_qk >= ma_sl:
-                continue
-            for thresh in range(range_threshold_start, range_threshold_end):
-                tuple = None
-                tuple = kline_elem_list.PrintEqualMAEx(ma_qk, ma_sl, thresh, log_verbose)
-                if tuple and tuple[4] > 0:
-                    tuple_list_from_one_data_source.append(tuple)
-        range_quick_start += 1
-        logging.debug("{0}, ma_qk={1} end".format(GetCurrentTimeStampStr(), ma_qk))
+    if test_one_only:
+        tuple = None
+        tuple = kline_elem_list.PrintEqualMAEx(10, 14, 0, True)
+        if tuple and tuple[4] > 0:
+            tuple_list_from_one_data_source.append(tuple)
+    else:
+        range_quick_start = RANGE_QUICK_INIT
+        for ma_qk in range(range_quick_start, range_quick_end):
+            logging.debug("{0}, ma_qk={1} start".format(GetCurrentTimeStampStr(), ma_qk))
+            for ma_sl in range(range_quick_start + 1, range_slow_end):
+                if ma_qk >= ma_sl:
+                    continue
+                for thresh in range(range_threshold_start, range_threshold_end):
+                    tuple = None
+                    tuple = kline_elem_list.PrintEqualMAEx(ma_qk, ma_sl, thresh, log_verbose)
+                    if tuple and tuple[4] > 0:
+                        tuple_list_from_one_data_source.append(tuple)
+            range_quick_start += 1
+            logging.debug("{0}, ma_qk={1} end".format(GetCurrentTimeStampStr(), ma_qk))
     data_source_index += 1
 
     tuple_list_from_one_data_source.sort(key=operator.itemgetter(4))
@@ -155,6 +175,7 @@ for data_source in data_source_list:
     wb['Sheet'].cell(row=1, column=6, value="positive")
     wb['Sheet'].cell(row=1, column=7, value="negative")
     wb['Sheet'].cell(row=1, column=8, value="win")
+    wb['Sheet'].cell(row=1, column=9, value="rate")
     idx = 0
     for i in tuple_list_from_one_data_source:
         if i:
@@ -167,6 +188,7 @@ for data_source in data_source_list:
             wb['Sheet'].cell(row=row_index, column=6, value=i[5])
             wb['Sheet'].cell(row=row_index, column=7, value=i[6])
             wb['Sheet'].cell(row=row_index, column=8, value=i[7])
+            wb['Sheet'].cell(row=row_index, column=9, value=i[8])
 
             # logging.debug(
             #     "idx={5} ma{0}, ma{1}: counter={2}, threshold={3}, profit={4}".format(i[0], i[1], i[2], i[3], i[4], idx))

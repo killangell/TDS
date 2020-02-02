@@ -432,8 +432,13 @@ class MAEx:
                     kline_elem_old = kline_elem_current
                     strategy_long_old = strategy_long_current
         if strategy_counter >= 1:
+            total = positive_num+negative_num
+            if total != 0:
+                rate = round((positive_num*100)/total, 2)
+            else:
+                rate = 0
             return (period_quick, period_slow, strategy_counter, threshold, profit_sum,
-                    positive_num, negative_num, positive_num > negative_num)
+                    positive_num, negative_num, positive_num > negative_num, rate)
         else:
             return None
 
